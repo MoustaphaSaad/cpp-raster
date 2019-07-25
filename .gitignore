@@ -23,6 +23,7 @@ forge/generated/*
 !projects/**/Makefile
 compile_commands.json
 **/Exports.h
+CMakeSettings.json
 
 # User-specific files
 *.suo
