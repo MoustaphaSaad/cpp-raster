@@ -1,3 +1,6 @@
 [submodule "mn"]
 	path = mn
 	url = https://github.com/MoustaphaSaad/mn.git
+[submodule "fabric"]
+	path = fabric
+	url = https://github.com/MoustaphaSaad/fabric.git
