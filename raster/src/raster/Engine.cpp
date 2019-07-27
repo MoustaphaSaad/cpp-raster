@@ -89,6 +89,10 @@ namespace raster
 		shape->center = Vec2i{ x, y };
 		shape->r = r;
 
-		engine_send(self, self->tree->root, shape);
+		fabric::waitgroup_add(self->wg, 1);
+		fabric::go([self, shape] {
+			engine_send(self, self->tree->root, shape);
+			fabric::waitgroup_done(self->wg);
+		});
 	}
 }

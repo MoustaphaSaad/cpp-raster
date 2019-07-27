@@ -69,7 +69,7 @@ namespace raster
 		quadtree_split(self, node->top_left);
 		quadtree_split(self, node->top_right);
 		quadtree_split(self, node->bottom_left);
-		quadtree_split(self, node->bottom_right);
+		quadtree_split(self, node->bottom_right);;
 	}
 
 	inline static void
@@ -108,7 +108,9 @@ namespace raster
 		self->root->box.max = Vec2i{int(width), int(height)};
 		self->limit = limit;
 		self->close_group = 0;
+
 		quadtree_split(self, self->root);
+
 		return self;
 	}
 
