@@ -661,15 +661,21 @@ app_render(Engine self)
 	static int anim_y = -self->height/2;
 	static int anim_yf = 1;
 
-	engine_circle(self, anim_x, 0, anim_r, Pixel{ 255 });
-	engine_circle(self, 0, 0, 50, Pixel{ 0, 255 });
+	engine_circle(self, -anim_x, 400, anim_r, Pixel{ 255, 255 });
+	engine_circle(self, -anim_x, 300, anim_r, Pixel{ 255, 255 });
+	engine_circle(self, -anim_x, 200, anim_r, Pixel{ 255, 255 });
+	engine_circle(self, anim_x,  100, anim_r, Pixel{ 255 });
+	engine_circle(self, 0, 0, anim_r, Pixel{ 0, 255 });
 	engine_circle(self, 100, anim_y, anim_r, Pixel{ 0, 0, 255 });
+	engine_circle(self, 200, -anim_y, anim_r, Pixel{ 0, 255, 255 });
+	engine_circle(self, 300, -anim_y, anim_r, Pixel{ 0, 255, 255 });
+	engine_circle(self, 400, -anim_y, anim_r, Pixel{ 0, 255, 255 });
 
 	anim_r += anim_rf;
 	anim_x += anim_xf;
 	anim_y += anim_yf;
 
-	if (anim_r > 500 || anim_r < 50)
+	if (anim_r > (self->width/4) || anim_r < 50)
 		anim_rf *= -1;
 
 	if (anim_x > self->width / 2 || anim_x < -self->width / 2)
