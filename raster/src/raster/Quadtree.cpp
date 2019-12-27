@@ -87,7 +87,7 @@ namespace raster
 		{
 			for (int i = node->box.min.x; i < node->box.max.x; ++i)
 			{
-				img(i, j) += shape->sample(Vec2i{ i, j }) + Pixel{ 0, 0, 50, 50 };
+				img(i, j) += shape->sample(Vec2i{ i, j }); // +Pixel{ 0, 0, 50, 50 };
 			}
 		}
 		mn::waitgroup_done(node->engine->wg);
