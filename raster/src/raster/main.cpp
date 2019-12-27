@@ -1,6 +1,5 @@
 #include <mn/IO.h>
-
-#include <fabric/Fabric.h>
+#include <mn/Fabric.h>
 
 #include <chrono>
 
@@ -47,16 +46,11 @@ app_render(Engine self)
 		anim_yf *= -1;
 }
 
-int main_loop()
+int main(int argc, char** argv)
 {
 	Window wnd = window_new(1280, 720, app_render);
 	while (window_closed(wnd) == false)
 		window_poll(wnd);
 	window_free(wnd);
 	return 0;
-}
-
-int main(int argc, char** argv)
-{
-	return fabric::fabric_main_exec(fabric::fabric_new(0), main_loop);
 }

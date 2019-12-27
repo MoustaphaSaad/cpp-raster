@@ -4,9 +4,7 @@
 #include "raster/Shape.h"
 
 #include <mn/Pool.h>
-
-#include <fabric/Chan.h>
-#include <fabric/Waitgroup.h>
+#include <mn/Fabric.h>
 
 namespace raster
 {
@@ -20,7 +18,7 @@ namespace raster
 		Quadnode* bottom_right;
 
 		Engine engine;
-		fabric::Chan<Shape*> shapes;
+		mn::Chan<Shape*> shapes;
 	};
 
 	inline static bool
@@ -38,8 +36,9 @@ namespace raster
 		Engine engine;
 		mn::Pool node_pool;
 		Quadnode* root;
+		size_t node_count;
 		int limit;
-		fabric::Waitgroup close_group;
+		mn::Waitgroup close_group;
 	};
 
 	Quadtree

@@ -4,10 +4,8 @@
 #include "raster/Swapchain.h"
 #include "raster/Quadtree.h"
 
-#include <fabric/Fabric.h>
-#include <fabric/Waitgroup.h>
-
 #include <mn/Memory.h>
+#include <mn/Fabric.h>
 
 namespace raster
 {
@@ -17,7 +15,8 @@ namespace raster
 		int width;
 		int height;
 		Swapchain chain;
-		fabric::Waitgroup wg;
+		mn::Waitgroup wg;
+		mn::Fabric f;
 		Quadtree tree;
 		mn::memory::Arena* shape_arena;
 	};

@@ -26,12 +26,10 @@ add_executable(raster
 	${SOURCE_FILES} ${HEADER_FILES}
 )
 
-add_subdirectory(mn/mn)
-add_subdirectory(fabric/fabric)
+add_subdirectory(mn EXCLUDE_FROM_ALL)
 target_link_libraries(raster
 	PUBLIC
 	MoustaphaSaad::mn
-	MoustaphaSaad::fabric
 )
 target_include_directories(raster
 	PUBLIC

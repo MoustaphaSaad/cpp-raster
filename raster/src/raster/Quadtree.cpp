@@ -4,8 +4,7 @@
 #include "raster/Shape.h"
 #include "raster/Engine.h"
 
-#include <fabric/Fabric.h>
-
+#include <mn/Fabric.h>
 #include <mn/Memory.h>
 #include <math.h>
 
@@ -23,25 +22,21 @@ namespace raster
 	inline static void
 	quadnode_worker(Quadnode* node)
 	{
-		while(true)
-		{
-			if (auto [shape, more] = fabric::chan_recv(node->shapes); more)
-				quadnode_raster(node, shape);
-			else
-				break;
-		}
+		for(auto shape: node->shapes)
+			quadnode_raster(node, shape);
 	}
 
 	inline static void
 	quadtree_split(Quadtree self, Quadnode* node)
 	{
 		if(box_width(node->box) < self->limit && box_height(node->box) < self->limit) {
-			node->shapes = fabric::chan_new<Shape*>(64);
-			fabric::waitgroup_add(self->close_group, 1);
-			fabric::go([node, self] {
+			++self->node_count;
+			node->shapes = mn::chan_new<Shape*>(64);
+			mn::waitgroup_add(self->close_group, 1);
+			mn::go(self->engine->f, [node, self] {
 				quadnode_worker(node);
-				fabric::chan_free(node->shapes);
-				fabric::waitgroup_done(self->close_group);
+				mn::chan_free(node->shapes);
+				mn::waitgroup_done(self->close_group);
 			});
 			return;
 		}
@@ -75,7 +70,7 @@ namespace raster
 	inline static void
 	quadnode_chan_close(Quadnode* node)
 	{
-		if (node->shapes) fabric::chan_close(node->shapes);
+		if (node->shapes) mn::chan_close(node->shapes);
 		if (node->top_left) quadnode_chan_close(node->top_left);
 		if (node->top_right) quadnode_chan_close(node->top_right);
 		if (node->bottom_left) quadnode_chan_close(node->bottom_left);
@@ -92,10 +87,10 @@ namespace raster
 		{
 			for (int i = node->box.min.x; i < node->box.max.x; ++i)
 			{
-				img(i, j) += shape->sample(Vec2i{ i, j }); //+ Pixel{ 0, 0, 50, 50 };
+				img(i, j) += shape->sample(Vec2i{ i, j }) + Pixel{ 0, 0, 50, 50 };
 			}
 		}
-		fabric::waitgroup_done(node->engine->wg);
+		mn::waitgroup_done(node->engine->wg);
 	}
 
 	Quadtree
@@ -105,6 +100,7 @@ namespace raster
 		self->engine = engine;
 		self->node_pool = mn::pool_new(sizeof(Quadnode), 1024);
 		self->root = quadtree_node_new(self);
+		self->node_count = 0;
 		self->root->box.max = Vec2i{int(width), int(height)};
 		self->limit = limit;
 		self->close_group = 0;
@@ -118,7 +114,7 @@ namespace raster
 	quadtree_free(Quadtree self)
 	{
 		quadnode_chan_close(self->root);
-		fabric::waitgroup_wait(self->close_group);
+		mn::waitgroup_wait(self->close_group);
 		mn::pool_free(self->node_pool);
 		mn::free(self);
 	}
