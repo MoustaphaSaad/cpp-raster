@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.9)
 
+project(cpp-raster VERSION 0.1.0 LANGUAGES CXX)
+
 # list source files
 set(HEADER_FILES
 	raster/include/raster/Pixel.h
