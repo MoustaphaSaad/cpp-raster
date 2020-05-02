@@ -10,6 +10,7 @@ namespace raster
 	{
 		if(quadnode_leaf(node))
 		{
+			quadnode_launch(node);
 			mn::waitgroup_add(self->wg, 1);
 			mn::chan_send(node->shapes, shape);
 			return;
@@ -62,6 +63,7 @@ namespace raster
 		Image res = swapchain_back(self->chain);
 		swapchain_swap(self->chain);
 		image_clear(swapchain_back(self->chain));
+
 
 		return res;
 	}

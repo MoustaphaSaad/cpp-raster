@@ -7,6 +7,8 @@
 #include <mn/Memory.h>
 #include <mn/Fabric.h>
 
+#include <atomic>
+
 namespace raster
 {
 	typedef struct IEngine* Engine;

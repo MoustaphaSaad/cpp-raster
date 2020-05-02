@@ -14,7 +14,7 @@ namespace raster
 	quadtree_node_new(Quadtree self)
 	{
 		Quadnode* res = (Quadnode*)mn::pool_get(self->node_pool);
-		*res = Quadnode{};
+		::memset(res, 0, sizeof(*res));
 		res->engine = self->engine;
 		return res;
 	}
@@ -22,8 +22,21 @@ namespace raster
 	inline static void
 	quadnode_worker(Quadnode* node)
 	{
-		for(auto shape: node->shapes)
-			quadnode_raster(node, shape);
+		int failure_count = 0;
+		mn::worker_block_on([node, &failure_count]{
+			auto [shape, ok] = mn::chan_recv_try(node->shapes);
+			if (ok)
+			{
+				quadnode_raster(node, shape);
+				failure_count = 0;
+			}
+			else
+			{
+				++failure_count;
+			}
+
+			return failure_count > 128;
+		});
 	}
 
 	inline static void
@@ -32,12 +45,6 @@ namespace raster
 		if(box_width(node->box) < self->limit && box_height(node->box) < self->limit) {
 			++self->node_count;
 			node->shapes = mn::chan_new<Shape*>(64);
-			mn::waitgroup_add(self->close_group, 1);
-			mn::go(self->engine->f, [node, self] {
-				quadnode_worker(node);
-				mn::chan_free(node->shapes);
-				mn::waitgroup_done(self->close_group);
-			});
 			return;
 		}
 		int w2f = int(::floor(box_width(node->box) / 2.0f));
@@ -70,7 +77,11 @@ namespace raster
 	inline static void
 	quadnode_chan_close(Quadnode* node)
 	{
-		if (node->shapes) mn::chan_close(node->shapes);
+		if (node->shapes)
+		{
+			mn::chan_close(node->shapes);
+			mn::chan_free(node->shapes);
+		}
 		if (node->top_left) quadnode_chan_close(node->top_left);
 		if (node->top_right) quadnode_chan_close(node->top_right);
 		if (node->bottom_left) quadnode_chan_close(node->bottom_left);
@@ -91,6 +102,21 @@ namespace raster
 			}
 		}
 		mn::waitgroup_done(node->engine->wg);
+	}
+
+	void
+	quadnode_launch(Quadnode* self)
+	{
+		if (self->launched.load() == true)
+			return;
+
+		mn::waitgroup_add(self->engine->tree->close_group, 1);
+		mn::go(self->engine->f, [self] {
+			quadnode_worker(self);
+			mn::waitgroup_done(self->engine->tree->close_group);
+			self->launched.store(false);
+		});
+		self->launched.store(true);
 	}
 
 	Quadtree
