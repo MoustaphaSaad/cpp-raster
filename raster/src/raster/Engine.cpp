@@ -38,7 +38,7 @@ namespace raster
 		self->height = int(height);
 		self->chain = swapchain_new(width, height);
 		self->wg = 0;
-		self->f = mn::fabric_new();
+		self->f = mn::fabric_new(mn::Fabric_Settings{});
 		self->tree = quadtree_new(self, width, height, width/4);
 		self->shape_arena = mn::allocator_arena_new();
 		return self;
