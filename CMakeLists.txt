@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.9)
 
 project(cpp-raster VERSION 0.1.0 LANGUAGES CXX)
 
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin/$<CONFIG>")
+
 # list source files
 set(HEADER_FILES
 	raster/include/raster/Pixel.h
@@ -26,12 +30,10 @@ add_executable(raster
 	${SOURCE_FILES} ${HEADER_FILES}
 )
 
-add_subdirectory(mn/mn)
-add_subdirectory(fabric/fabric)
+add_subdirectory(mn EXCLUDE_FROM_ALL)
 target_link_libraries(raster
 	PUBLIC
 	MoustaphaSaad::mn
-	MoustaphaSaad::fabric
 )
 target_include_directories(raster
 	PUBLIC

@@ -8,6 +8,7 @@
 #include <Windows.h>
 
 #include <assert.h>
+#include <chrono>
 
 namespace raster
 {
@@ -79,12 +80,12 @@ namespace raster
 			self->render(self->engine);
 			Image frame = engine_swap(self->engine);
 			auto end = std::chrono::high_resolution_clock::now();
-			mn::printfmt("render: {:10}us, ", std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
+			mn::print("render: {:10}us, ", std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
 
 			start = std::chrono::high_resolution_clock::now();
 			window_blit(self, frame);
 			end = std::chrono::high_resolution_clock::now();
-			mn::printfmt("blit: {:10}us\n", std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
+			mn::print("blit: {:10}us\n", std::chrono::duration_cast<std::chrono::microseconds>(end - start).count());
 			break;
 		}
 		default:

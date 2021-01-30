@@ -4,9 +4,9 @@
 #include "raster/Shape.h"
 
 #include <mn/Pool.h>
+#include <mn/Fabric.h>
 
-#include <fabric/Chan.h>
-#include <fabric/Waitgroup.h>
+#include <atomic>
 
 namespace raster
 {
@@ -20,7 +20,8 @@ namespace raster
 		Quadnode* bottom_right;
 
 		Engine engine;
-		fabric::Chan<Shape*> shapes;
+		std::atomic<bool> launched;
+		mn::Chan<Shape*> shapes;
 	};
 
 	inline static bool
@@ -32,14 +33,18 @@ namespace raster
 	void
 	quadnode_raster(Quadnode* node, Shape* shape);
 
+	void
+	quadnode_launch(Quadnode* self);
+
 	typedef struct IQuadtree* Quadtree;
 	struct IQuadtree
 	{
 		Engine engine;
 		mn::Pool node_pool;
 		Quadnode* root;
+		size_t node_count;
 		int limit;
-		fabric::Waitgroup close_group;
+		mn::Waitgroup close_group;
 	};
 
 	Quadtree
