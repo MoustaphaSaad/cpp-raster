@@ -10,7 +10,6 @@ namespace raster
 	{
 		if(quadnode_leaf(node))
 		{
-			quadnode_launch(node);
 			mn::waitgroup_add(self->wg, 1);
 			mn::chan_send(node->shapes, shape);
 			return;

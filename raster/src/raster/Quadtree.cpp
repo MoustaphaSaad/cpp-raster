@@ -20,31 +20,16 @@ namespace raster
 	}
 
 	inline static void
-	quadnode_worker(Quadnode* node)
-	{
-		int failure_count = 0;
-		mn::worker_block_on([node, &failure_count]{
-			auto [shape, ok] = mn::chan_recv_try(node->shapes);
-			if (ok)
-			{
-				quadnode_raster(node, shape);
-				failure_count = 0;
-			}
-			else
-			{
-				++failure_count;
-			}
-
-			return failure_count > 128;
-		});
-	}
-
-	inline static void
 	quadtree_split(Quadtree self, Quadnode* node)
 	{
 		if(box_width(node->box) < self->limit && box_height(node->box) < self->limit) {
 			++self->node_count;
 			node->shapes = mn::chan_new<Shape*>(64);
+			mn::go(self->engine->f, [node, shapes = mn::chan_new(node->shapes)]{
+				for (auto shape: shapes)
+					quadnode_raster(node, shape);
+				mn::chan_free(shapes);
+			});
 			return;
 		}
 		int w2f = int(::floor(box_width(node->box) / 2.0f));
@@ -104,21 +89,6 @@ namespace raster
 		mn::waitgroup_done(node->engine->wg);
 	}
 
-	void
-	quadnode_launch(Quadnode* self)
-	{
-		if (self->launched.load() == true)
-			return;
-
-		mn::waitgroup_add(self->engine->tree->close_group, 1);
-		mn::go(self->engine->f, [self] {
-			quadnode_worker(self);
-			mn::waitgroup_done(self->engine->tree->close_group);
-			self->launched.store(false);
-		});
-		self->launched.store(true);
-	}
-
 	Quadtree
 	quadtree_new(Engine engine, uint32_t width, uint32_t height, uint32_t limit)
 	{
@@ -129,7 +99,6 @@ namespace raster
 		self->node_count = 0;
 		self->root->box.max = Vec2i{int(width), int(height)};
 		self->limit = limit;
-		self->close_group = 0;
 
 		quadtree_split(self, self->root);
 
@@ -140,7 +109,6 @@ namespace raster
 	quadtree_free(Quadtree self)
 	{
 		quadnode_chan_close(self->root);
-		mn::waitgroup_wait(self->close_group);
 		mn::pool_free(self->node_pool);
 		mn::free(self);
 	}

@@ -28,7 +28,7 @@ namespace raster
 
 	void
 	engine_free(Engine self);
-	
+
 	inline static void
 	destruct(Engine self)
 	{

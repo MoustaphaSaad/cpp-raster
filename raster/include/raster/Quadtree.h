@@ -20,7 +20,6 @@ namespace raster
 		Quadnode* bottom_right;
 
 		Engine engine;
-		std::atomic<bool> launched;
 		mn::Chan<Shape*> shapes;
 	};
 
@@ -33,9 +32,6 @@ namespace raster
 	void
 	quadnode_raster(Quadnode* node, Shape* shape);
 
-	void
-	quadnode_launch(Quadnode* self);
-
 	typedef struct IQuadtree* Quadtree;
 	struct IQuadtree
 	{
@@ -44,7 +40,6 @@ namespace raster
 		Quadnode* root;
 		size_t node_count;
 		int limit;
-		mn::Waitgroup close_group;
 	};
 
 	Quadtree
