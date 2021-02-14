@@ -36,7 +36,7 @@ namespace raster
 		self->width = int(width);
 		self->height = int(height);
 		self->chain = swapchain_new(width, height);
-		self->wg = 0;
+		self->wg = mn::waitgroup_new();
 		self->f = mn::fabric_new(mn::Fabric_Settings{});
 		self->tree = quadtree_new(self, width, height, width/4);
 		self->shape_arena = mn::allocator_arena_new();
@@ -50,6 +50,7 @@ namespace raster
 		swapchain_free(self->chain);
 		mn::allocator_free(self->shape_arena);
 		mn::fabric_free(self->f);
+		mn::waitgroup_free(self->wg);
 		mn::free(self);
 	}
 
